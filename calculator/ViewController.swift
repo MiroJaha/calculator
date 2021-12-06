@@ -13,10 +13,9 @@ class ViewController: UIViewController {
     @IBOutlet weak var decimalButton: UIButton!
     
     var firstNumber = 0.0
-    var didEqual = false
+    var secondNumber = 0.0
     var inDecimal = false
     var afterOperator = false
-    var didOperator = false
     var secondNumberEntered = false
     var currentOperator = ""
     
@@ -64,34 +63,22 @@ class ViewController: UIViewController {
             inDecimal = true
             break
         case 11:
-            if didEqual && didOperator{
-                findResult(operators: "=")
-                secondNumberEntered = false
-                didEqual = true
-            }
-            else if didEqual{
-                break
-            }
-            else if didOperator{
-                findResult(operators: "=")
-                secondNumberEntered = false
-                didEqual = true
-            }
+            findResult(operators: "=")
             break
         case 12:
-            calculate(operators: "+")
+            findResult(operators: "+")
             break
         case 13:
-            calculate(operators: "-")
+            findResult(operators: "-")
             break
         case 14:
-            calculate(operators: "*")
+            findResult(operators: "*")
             break
         case 15:
-            calculate(operators: "/")
+            findResult(operators: "/")
             break
         case 16:
-            calculate(operators: "%")
+            showedNumber.text = "\((Double(showedNumber.text ?? "") ?? -1) / 100)"
             break
         case 17:
             showedNumber.text = "\((Double(showedNumber.text ?? "") ?? -1) * -1)"
@@ -103,8 +90,8 @@ class ViewController: UIViewController {
             showedNumber.text = "0"
             firstNumber = 0.0
             decimalButton.isEnabled = true
-            didOperator = false
-            didEqual = false
+            afterOperator = false
+            secondNumberEntered = false
             break
         default:
             showedNumber.text = "Error"
@@ -120,62 +107,53 @@ class ViewController: UIViewController {
         }
         else if showedNumber.text == "0" || showedNumber.text == "Error"{
             showedNumber.text = String(number)
-            afterOperator = false
         }
         else{
             showedNumber.text = "\(showedNumber.text ?? "")\(number)"
         }
     }
     
-    func calculate(operators: String){
-        if !inDecimal{
-            if showedNumber.text == "Error"{
+    func findResult(operators: String){
+        if secondNumberEntered && !inDecimal{
+            secondNumber = Double(showedNumber.text ?? "") ?? -1
+            switch operators{
+            case "=":
+                findResult(operators: currentOperator)
+                firstNumber = 0.0
                 return
+            case "+":
+                showedNumber.text = String(firstNumber + secondNumber)
+            case "-":
+                if firstNumber == 0.0{
+                    secondNumber *= -1
+                }
+                showedNumber.text = String(firstNumber - secondNumber)
+            case "*":
+                if firstNumber == 0.0{
+                    firstNumber = 1
+                }
+                showedNumber.text = String(firstNumber * secondNumber)
+            case "/":
+                if firstNumber == 0.0{
+                    firstNumber = secondNumber
+                    secondNumber = 1
+                }
+                if secondNumber == 0.0{
+                    showedNumber.text = "Error"
+                    return
+                }
+                showedNumber.text = String(firstNumber / secondNumber)
+            default:
+                showedNumber.text = "Error"
             }
-            else if !didOperator && firstNumber == 0.0{
-                didOperator = true
-                currentOperator = operators
-                firstNumber = Double(showedNumber.text ?? "") ?? -1
-            }
-            else if !didOperator{
-                findResult(operators: currentOperator)
-                currentOperator = operators
-            }
-            else if didOperator && secondNumberEntered{
-                findResult(operators: currentOperator)
-                currentOperator = operators
-            }
+            currentOperator = operators
+            secondNumberEntered = false
             afterOperator = true
         }
-    }
-    
-    func findResult(operators: String){
-        let secondNumebr = Double(showedNumber.text ?? "") ?? -1
-        switch operators{
-        case "=":
-            findResult(operators: currentOperator)
-            currentOperator = "die"
-        case "die":
-            return
-        case "+":
-            showedNumber.text = String(firstNumber + secondNumebr)
-        case "-":
-            showedNumber.text = String(firstNumber - secondNumebr)
-        case "*":
-            showedNumber.text = String(firstNumber * secondNumebr)
-        case "/":
-            if secondNumebr == 0.0{
-                showedNumber.text = "Error"
-                break
-            }
-            showedNumber.text = String(firstNumber / secondNumebr)
-        case "%":
-            break
-        default:
-            showedNumber.text = "Error"
+        else if !inDecimal && operators != "="{
+            currentOperator = operators
+            afterOperator = true
         }
         firstNumber = Double(showedNumber.text ?? "") ?? -1
-        didEqual = false
     }
 }
-
