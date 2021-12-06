@@ -65,7 +65,7 @@ class ViewController: UIViewController {
             break
         case 11:
             if didEqual && didOperator{
-                findResult(operators: currentOperator)
+                findResult(operators: "=")
                 secondNumberEntered = false
                 didEqual = true
             }
@@ -73,7 +73,7 @@ class ViewController: UIViewController {
                 break
             }
             else if didOperator{
-                findResult(operators: currentOperator)
+                findResult(operators: "=")
                 secondNumberEntered = false
                 didEqual = true
             }
@@ -152,6 +152,11 @@ class ViewController: UIViewController {
     func findResult(operators: String){
         let secondNumebr = Double(showedNumber.text ?? "") ?? -1
         switch operators{
+        case "=":
+            findResult(operators: currentOperator)
+            currentOperator = "die"
+        case "die":
+            return
         case "+":
             showedNumber.text = String(firstNumber + secondNumebr)
         case "-":
